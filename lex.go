@@ -81,6 +81,8 @@ func DefaultLexers() []Lexer {
 			`(?i)^s(?P<s>[0-8]?\d)[\-\._ ]{1,3}(?P<e>\d{1,5})(?:[\-\._ ]{1,3}(?P<v>v\d+(?:\.\d+){0,2}))?\b`,
 			// Season.01.Episode.02, Series.01.Ep.02, Series.01, Season.01
 			`(?i)^(?:series|season|s)[\-\._ ]?(?P<s>[0-8]?\d)(?:[\-\._ ]?(?:episode|ep)(?P<e>\d{1,5}))?\b`,
+			// 6th Season, 2nd Season
+			`(?i)^(?P<s>[0-8]?\d)(?:st|nd|rd|th)[\-\._ ]+season\b`,
 			// Vol.1.No.2, vol1no2
 			`(?i)^vol(?:ume)?[\-\._ ]?(?P<s>\d{1,3})(?:[\-\._ ]?(?:number|no)[\-\._ ]?(?P<e>\d{1,5}))\b`,
 			// Episode 15, E009, Ep. 007, Ep.05-07
@@ -347,7 +349,11 @@ func NewEpisodeLexer() Lexer {
 			// compare against src, and match "lookbehind"
 			if lb.Match(src[:i]) {
 				if m := re.FindSubmatch(src[i:n]); m != nil && !bytes.HasPrefix(src[i+len(m[1]):], []byte{','}) {
-					tags := []Tag{NewTag(TagTypeSeries, nil, m[1], nil, m[1])}
+					var series []byte
+					if len(m[1]) <= 2 && hasLeadingBracketedGroup(start) {
+						series = []byte{'1'}
+					}
+					tags := []Tag{NewTag(TagTypeSeries, nil, m[1], series, m[1])}
 					if len(m[2]) != 0 {
 						tags = append(tags, NewTag(TagTypeDelim, nil, m[2], m[2]))
 					}
@@ -357,6 +363,20 @@ func NewEpisodeLexer() Lexer {
 			return start, end, i, n, false
 		},
 	}
+}
+
+func hasLeadingBracketedGroup(tags []Tag) bool {
+	for _, tag := range tags {
+		switch tag.typ {
+		case TagTypeWhitespace, TagTypeDelim:
+			continue
+		case TagTypeGroup, TagTypeMeta:
+			return strings.HasPrefix(fmt.Sprintf("%o", tag), "[")
+		default:
+			return false
+		}
+	}
+	return false
 }
 
 // NewVersionLexer creates a tag lexer for a version.

@@ -1761,6 +1761,7 @@
   type: "episode"
   title: "Clockwork Planet"
   resolution: "480p"
+  series: 1
   episode: 10
   site: "HorribleSubs"
   ext: "mkv"
@@ -1981,6 +1982,7 @@
   type: "episode"
   title: "Higurashi no Naku Koro ni Sotsu"
   resolution: "1080p"
+  series: 1
   episode: 9
   site: "SubsPlease"
   sum: "C00D6C68"
@@ -2147,6 +2149,7 @@
 "[RaX]Mezzo(DSA)_-_05_-_[x264_ogg]_[585d9971].mkv":
   type: "episode"
   title: "Mezzo"
+  series: 1
   episode: 5
   codec: "x264"
   audio: "OGG"
@@ -2347,6 +2350,7 @@
   type: "episode"
   title: "Saikin Yatotta Maid ga Ayashii"
   resolution: "1080p"
+  series: 1
   episode: 9
   site: "SubsPlease"
   sum: "990FF01E"

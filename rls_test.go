@@ -59,6 +59,58 @@ func TestParseRelease(t *testing.T) {
 	}
 }
 
+func TestAnimeReleaseSeriesParsing(t *testing.T) {
+	p := NewTagParser(taginfo.All(groupInfos()), DefaultLexers()...)
+	tests := []struct {
+		name    string
+		src     string
+		series  int
+		episode int
+	}{
+		{
+			name:    "erai ordinal season",
+			src:     "[Erai-raws] Hitori no Shita: The Outcast 6th Season - 26 (CA) [1080p CR WEBRip HEVC AAC][MultiSub][46D5B0CC]",
+			series:  6,
+			episode: 26,
+		},
+		{
+			name:    "erai implicit first season",
+			src:     "[Erai-raws] Otaku ni Yasashii Gal wa Inai - 12 [1080p CR WEB-DL AVC AAC][MultiSub][84D6D057]",
+			series:  1,
+			episode: 12,
+		},
+		{
+			name:    "subsplease explicit season",
+			src:     "[SubsPlease] Hitori no Shita - The Outcast S6 - 26 (1080p) [8BE4ED09].mkv",
+			series:  6,
+			episode: 26,
+		},
+		{
+			name:    "toonshub explicit season episode",
+			src:     "[ToonsHub] The Outcast S06E26 1080p CR WEB-DL AAC2.0 H.264 (Yi Ren Zhi Xia, Multi-Subs)",
+			series:  6,
+			episode: 26,
+		},
+		{
+			name:    "long running standalone episode remains seasonless",
+			src:     "[SubsPlease] One Piece - 1125 (1080p) [7E631F90].mkv",
+			series:  0,
+			episode: 1125,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r := p.ParseRelease([]byte(test.src))
+			if r.Type != Episode {
+				t.Fatalf("expected type %s, got %s", Episode, r.Type)
+			}
+			if r.Series != test.series || r.Episode != test.episode {
+				t.Fatalf("expected S%02dE%02d, got S%02dE%02d", test.series, test.episode, r.Series, r.Episode)
+			}
+		})
+	}
+}
+
 func TestCollapser(t *testing.T) {
 	tests := []struct {
 		s string
