@@ -624,6 +624,78 @@ func (b *TagBuilder) collect(r *Release) {
 			r.Day = day
 		}
 	}
+	b.fixAnimeSeasonSuffix(r)
+}
+
+// fixAnimeSeasonSuffix promotes anime sequel suffixes such as "II" and
+// "Part 2" to the season when the episode was parsed from a fansub-style
+// absolute number ("[Group] Title II - 01 ...").
+func (b *TagBuilder) fixAnimeSeasonSuffix(r *Release) {
+	if r.Series != 1 || r.Episode == 0 || r.Episode > 999 || !hasLeadingBracketedGroup(r.tags) {
+		return
+	}
+	seriesTag := -1
+	for i := 0; i < len(r.tags); i++ {
+		if !r.tags[i].Is(TagTypeSeries) {
+			continue
+		}
+		series, episode := r.tags[i].Series()
+		if series == 1 && episode == r.Episode {
+			seriesTag = i
+			break
+		}
+	}
+	if seriesTag == -1 {
+		return
+	}
+	prev := previousTextTag(r.tags, seriesTag)
+	if prev == -1 {
+		return
+	}
+	season, start := animeSeasonSuffix(r.tags, prev)
+	if season <= 1 || season > 99 {
+		return
+	}
+	r.Series = season
+	r.tags[seriesTag] = NewTag(
+		TagTypeSeries,
+		nil,
+		[]byte(r.tags[seriesTag].v[0]),
+		[]byte(strconv.Itoa(season)),
+		[]byte(strconv.Itoa(r.Episode)),
+	)
+	for i := start; i <= prev; i++ {
+		if r.tags[i].Is(TagTypeText) {
+			r.tags[i] = NewTag(TagTypeSeries, nil, []byte(r.tags[i].v[0]), []byte(strconv.Itoa(season)), nil)
+		}
+	}
+}
+
+func previousTextTag(tags []Tag, i int) int {
+	for i--; i >= 0; i-- {
+		if tags[i].Is(TagTypeText) {
+			return i
+		}
+		if !tags[i].Is(TagTypeDelim, TagTypeWhitespace) {
+			return -1
+		}
+	}
+	return -1
+}
+
+func animeSeasonSuffix(tags []Tag, last int) (int, int) {
+	if season, roman, ok := convNumber(strings.ToLower(tags[last].Text())); ok && roman {
+		return season, last
+	}
+	season, _, ok := convNumber(tags[last].Text())
+	if !ok || season <= 1 || season > 9 {
+		return 0, -1
+	}
+	prev := previousTextTag(tags, last)
+	if prev == -1 || !strings.EqualFold(tags[prev].Text(), "part") {
+		return 0, -1
+	}
+	return season, prev
 }
 
 // inspect inspects the release, returning its expected type.

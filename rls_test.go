@@ -97,6 +97,24 @@ func TestAnimeReleaseSeriesParsing(t *testing.T) {
 			series:  0,
 			episode: 1125,
 		},
+		{
+			name:    "erai roman sequel season",
+			src:     "[Erai-raws] Clevatess II - 01 [1080p CR WEB-DL AVC AAC][MultiSub][89A0BAFA]",
+			series:  2,
+			episode: 1,
+		},
+		{
+			name:    "erai roman sequel season with title words",
+			src:     "[Erai-raws] Youjo Senki II - 01 [1080p CR WEB-DL AVC AAC][MultiSub][E4363B39]",
+			series:  2,
+			episode: 1,
+		},
+		{
+			name:    "erai part sequel season",
+			src:     "[Erai-raws] Yoroi-Shinden Samurai Troopers Part 2 - 01 [1080p CR WEB-DL AVC AAC][MultiSub][8B20E329]",
+			series:  2,
+			episode: 1,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
@@ -106,6 +124,35 @@ func TestAnimeReleaseSeriesParsing(t *testing.T) {
 			}
 			if r.Series != test.series || r.Episode != test.episode {
 				t.Fatalf("expected S%02dE%02d, got S%02dE%02d", test.series, test.episode, r.Series, r.Episode)
+			}
+		})
+	}
+}
+
+func TestAnimeReleaseSeasonSuffixTitle(t *testing.T) {
+	p := NewTagParser(taginfo.All(groupInfos()), DefaultLexers()...)
+	tests := []struct {
+		src   string
+		title string
+	}{
+		{
+			src:   "[Erai-raws] Clevatess II - 01 [1080p CR WEB-DL AVC AAC][MultiSub][89A0BAFA]",
+			title: "Clevatess",
+		},
+		{
+			src:   "[Erai-raws] Youjo Senki II - 01 [1080p CR WEB-DL AVC AAC][MultiSub][E4363B39]",
+			title: "Youjo Senki",
+		},
+		{
+			src:   "[Erai-raws] Yoroi-Shinden Samurai Troopers Part 2 - 01 [1080p CR WEB-DL AVC AAC][MultiSub][8B20E329]",
+			title: "Yoroi-Shinden Samurai Troopers",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.title, func(t *testing.T) {
+			r := p.ParseRelease([]byte(test.src))
+			if r.Title != test.title {
+				t.Fatalf("expected title %q, got %q", test.title, r.Title)
 			}
 		})
 	}
