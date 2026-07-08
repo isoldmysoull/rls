@@ -366,17 +366,28 @@ func NewEpisodeLexer() Lexer {
 }
 
 func hasLeadingBracketedGroup(tags []Tag) bool {
+	var prefix strings.Builder
 	for _, tag := range tags {
 		switch tag.typ {
 		case TagTypeWhitespace, TagTypeDelim:
+			if tag.Is(TagTypeWhitespace) {
+				return strings.HasSuffix(strings.TrimSpace(prefix.String()), "]")
+			}
+			prefix.WriteString(fmt.Sprintf("%o", tag))
+			if strings.HasSuffix(strings.TrimSpace(prefix.String()), "]") {
+				return true
+			}
 			continue
 		case TagTypeGroup, TagTypeMeta:
 			return strings.HasPrefix(fmt.Sprintf("%o", tag), "[")
+		case TagTypeText:
+			prefix.WriteString(fmt.Sprintf("%o", tag))
+			continue
 		default:
-			return false
+			return strings.HasSuffix(strings.TrimSpace(prefix.String()), "]")
 		}
 	}
-	return false
+	return strings.HasSuffix(strings.TrimSpace(prefix.String()), "]")
 }
 
 // NewVersionLexer creates a tag lexer for a version.

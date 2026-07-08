@@ -653,6 +653,9 @@ func (b *TagBuilder) fixAnimeSeasonSuffix(r *Release) {
 		return
 	}
 	season, start := animeSeasonSuffix(r.tags, prev)
+	if season <= 1 {
+		season, start = animeSeasonMarker(r.tags, prev)
+	}
 	if season <= 1 || season > 99 {
 		return
 	}
@@ -696,6 +699,19 @@ func animeSeasonSuffix(tags []Tag, last int) (int, int) {
 		return 0, -1
 	}
 	return season, prev
+}
+
+func animeSeasonMarker(tags []Tag, last int) (int, int) {
+	for i := last; i >= 0; i-- {
+		if !tags[i].Is(TagTypeText) {
+			continue
+		}
+		s := strings.TrimRight(tags[i].Text(), ":")
+		if season, roman, ok := convNumber(strings.ToLower(s)); ok && roman {
+			return season, i
+		}
+	}
+	return 0, -1
 }
 
 // inspect inspects the release, returning its expected type.

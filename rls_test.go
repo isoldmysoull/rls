@@ -115,6 +115,18 @@ func TestAnimeReleaseSeriesParsing(t *testing.T) {
 			series:  2,
 			episode: 1,
 		},
+		{
+			name:    "erai roman season marker before subtitle",
+			src:     "[Erai-raws] Mushoku Tensei III: Isekai Ittara Honki Dasu - 02 [1080p CR WEBRip HEVC AAC][MultiSub][DEC19C44]",
+			series:  3,
+			episode: 2,
+		},
+		{
+			name:    "erai malformed leading bracket implicit first season",
+			src:     "Erai-raws] Yomi no Tsugai - 13 [1080p CR WEBRip HEVC AAC][MultiSub][7C81BBFA]",
+			series:  1,
+			episode: 13,
+		},
 	}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
