@@ -2280,6 +2280,20 @@
   group: "JBENT"
   site: "TAoE"
   ext: "mkv"
+"A.Good.Day.to.Ascend.S01E06.1080p.iQ.WEB-DL.CMN.AAC2.0.H.264.MSubs-ToonsHub.mkv":
+  type: "episode"
+  title: "A Good Day to Ascend"
+  source: "WEB-DL"
+  resolution: "1080p"
+  collection: "iQ"
+  series: 1
+  episode: 6
+  codec: "H.264"
+  audio: "AAC"
+  channels: "2.0"
+  language: "MANDARiN MULTiSUB"
+  group: "ToonsHub"
+  ext: "mkv"
 "Peacemaker (2022) S01E08 It's Cow or Never (1080p HMAX Webrip x265 8-bit AC3 5.1 - JBENT)[TAoE].mkv":
   type: "episode"
   title: "Peacemaker"
