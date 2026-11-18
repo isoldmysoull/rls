@@ -3,3 +3,14 @@
 *.out
 *.txt
 *.json
+.idea
+
+dist/
+
+# local working material
+/.claude/
+/docs/
+
+# labelled fixtures of other projects, committed with their licence files
+!/testdata/corpus/labelled/anitomy.json
+!/testdata/corpus/labelled/anitogo.json
