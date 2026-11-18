@@ -1,9 +1,12 @@
 package rls_test
 
 import (
+	"encoding/json"
 	"fmt"
+	"testing"
 
 	"github.com/moistari/rls"
+	"github.com/stretchr/testify/assert"
 )
 
 func ExampleParse() {
@@ -30,4 +33,26 @@ func ExampleParse() {
 	//   edition: ["Limited.Edition"]
 	//   other: ["REISSUE" "BOXSET"]
 	//   group: NOiR
+}
+
+func TestOnePiece1000Plus(t *testing.T) {
+	const title = "[ToonsHub] One Piece EP1160 1080p CR WEB-DL DUAL AAC2.0 H.264 (Dual-Audio, Multi-Subs) "
+	r := rls.ParseString(title)
+	data, err := json.Marshal(r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "One Piece", r.Title)
+	assert.Equal(t, "WEB-DL", r.Source)
+	assert.Equal(t, "1080p", r.Resolution)
+	assert.Equal(t, "CR", r.Collection)
+	assert.Len(t, r.Codec, 1)
+	if len(r.Codec) == 1 {
+		assert.Equal(t, "H.264", r.Codec[0])
+	}
+
+	assert.Equal(t, 1160, r.Episode)
+	assert.Zero(t, r.Series)
+	fmt.Println(string(data))
 }

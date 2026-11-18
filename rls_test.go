@@ -141,6 +141,30 @@ func TestAnimeReleaseSeriesParsing(t *testing.T) {
 	}
 }
 
+func TestStandaloneEpisodeMarkers(t *testing.T) {
+	tests := []struct {
+		name    string
+		title   string
+		episode int
+	}{
+		{"One Piece EP1160", "One Piece", 1160},
+		{"One Piece EP1162", "One Piece", 1162},
+		{"OXXX EP2212", "OXXX", 2212},
+		{"One Piece ep1163", "One Piece", 1163},
+		{"Another Show Episode1164", "Another Show", 1164},
+		{"Another Show EP10000", "Another Show", 10000},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r := ParseString(test.name)
+			if r.Type != Episode || r.Title != test.title || r.Series != 0 || r.Episode != test.episode {
+				t.Fatalf("got type=%s title=%q series=%d episode=%d; want type=episode title=%q series=0 episode=%d",
+					r.Type, r.Title, r.Series, r.Episode, test.title, test.episode)
+			}
+		})
+	}
+}
+
 func TestAnimeReleaseSeasonSuffixTitle(t *testing.T) {
 	p := NewTagParser(taginfo.All(groupInfos()), DefaultLexers()...)
 	tests := []struct {
